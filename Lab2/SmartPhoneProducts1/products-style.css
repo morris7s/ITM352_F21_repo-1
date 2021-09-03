@@ -19,10 +19,25 @@ main {
     display: flex;
 	flex-flow: row wrap;
 	justify-content: space-around;
-	background: url('images/picture1.jpg') no-repeat center;
+	background: url('images/phone_globe.jpg') no-repeat center;
 }
 /* Styling the products display */ 
 .item img {
     height: 200px;
     width: 200px
+}
+
+img {
+    border: 1px solid #ddd;
+    /* Gray border */
+    border-radius: 4px;
+    /* Rounded border */
+    padding: 5px;
+    /* Some padding */
+    width: 150px;
+    /* Set a small width */
+}
+
+img:hover {
+    box-shadow: 0 0 5px 1px black;
 }
