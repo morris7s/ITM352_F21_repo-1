@@ -10,7 +10,7 @@ h1, h2 {
 
 /* block styling */  
 body > div {
-    border: 5px solid black;
+    border: 5px solid rgb(107, 80, 80);
 	display: flex;
 }
 
@@ -27,6 +27,7 @@ main {
     width: 200px
 }
 
+/* Styling all images */ 
 img {
     border: 1px solid #ddd;
     /* Gray border */
