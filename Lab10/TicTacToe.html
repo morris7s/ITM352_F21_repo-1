@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TicTacToe</title>
+    <style>
+        td:hover {
+        background-color: chartreuse;
+    }
+    td {
+        height:25px;width:20px;text-align:center;cursor:cell;
+    }
+    </style>
+</head>
+<body>
+    <script>
+        var marks =["X","O"];
+        var move_num = 0;
+        var TicTacToe = [
+            ['-', '-', '-'],
+            ['-', '-', '-'],
+            ['-', '-', '-'],
+        ];
+        const re = /^(?:(?:...){0,2}([OX])\1\1|.{0,2}([OX])..\2..\2|([OX])...\3...\3|..([OX]).\4.\4)/g;
+
+        document.write("<table border=1>");
+        for (i in TicTacToe){
+            document.write(`<tr>`);
+            for (j = 0; j < 3; j++) {
+                document.write(`
+                    <td onclick='
+                    row = ${i};
+                    col = ${j};
+                    if (this.innerHTML == "-") {
+                        this.innerHTML = marks[move_num % 2];
+                        status_div.innerHTML = marks[(++move_num)%2] + " goes";
+                        TicTacToe[${i}][${j}] = marks[(move_num + 1)%2];
+                        console.log(TicTacToe);
+                        board_str = TicTacToe.map(e => e.join("")).join("");
+                        win = re.exec(board_str);
+                        console.log(win);
+                        if (win != null || (move_num + 1) == 9) {
+                            if (win == null) {
+                                document.getElementById("status_div").innerHTML = "Draw!";
+                            } else {
+                                document.getElementById("status_div").innerHTML = win[2] + " won!";
+                            }
+                        }
+                    }'>${(TicTacToe[i][j])}</td>
+                `);
+            }
+            document.write(`</tr>`);
+
+        }
+        
+        document.write("</table>");
+        </script>
+    <div id=status_div>X goes first</div>
+</body>
+</html>

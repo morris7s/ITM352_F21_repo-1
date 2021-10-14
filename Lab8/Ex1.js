@@ -6,7 +6,7 @@ var count = 0;
 while (count < num_products) {
     count++;
     if (count > num_products/4 && count <= (num_products/4) * 3) {
-        console.log(`${count}. ${eval('name' + count) + " is sold out!"}`);
+        console.log(`${count}. ${eval('name' + count)} is sold out!`);
         continue;
     }
     console.log(`${count}. ${eval('name' + count)}`);
