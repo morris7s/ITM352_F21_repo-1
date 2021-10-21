@@ -8,4 +8,4 @@ for (i = 0; i<pieces.length; i++) {
 
 console.log("pieces is type of:" + typeof(pieces));
 
-console.log(pieces.join(";"));
+console.log(pieces.join(","));
