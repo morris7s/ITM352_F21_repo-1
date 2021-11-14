@@ -1,5 +1,7 @@
 /* 
- * A file to serve products data, display products page, validate purchase data, and provide an invoice for a purchase
+ * Author: Alyssia Chen
+ * Date: November 14th, 2021
+ * description : A file to serve products data, display products page, validate purchase data, and provide an invoice for a purchase
  */
 
 var express = require('express');
@@ -10,9 +12,10 @@ var app = express();
 app.use(myParser.urlencoded({ extended: true }));
 
 var products_array = require('./products.json');
-// FROM Lab13; Give each product a property of how many sold during this server round
+// FROM Lab13; Give each product a property of how many sold during this server's life
 products_array.forEach( (prod,i) => {prod.total_sold = 0});
 
+// An array of errors per product after the user submits a purchase request
 var quantities_errors = [];
 
 // For any internal requests from client side pages for the data
@@ -20,7 +23,6 @@ app.get("/product.js", function (request, response, next) {
     response.type('.js');
     // Returns js code that defines an array of products
     var products_str = `var products = ${JSON.stringify(products_array)};`;
-    console.log("In request for data");
     response.send(products_str);
 });
 
@@ -34,7 +36,6 @@ app.all('*', function (request, response, next) {
 // FROM Assignment1 MVC example
 // This route will display a listing of the products and a form for users to indicate what they want to purchase
 app.get("/store", function (request, response) {
-    console.log("Get route for store")
     // Grab any url params if this is a get request due to an error in a form
     let urlparams = request.url.split("&");
 
@@ -45,13 +46,14 @@ app.get("/store", function (request, response) {
 
     function display_products() {
         str = '';
-        // For every product in the array, create an html section for it on the display products page. 
-        // The onkeyup event does a client side check on the quantites the user enters by calling the checker functions
-        // in the display_products.template
+
         if (urlparams[0] === "/store?error=Invalid%20Quantity") {
             str += ((urlparams[urlparams.length - 1]).split("=")[1] === "true") ? "<section>One of the quantities you ordered was beyond the stock we have. We have automatically adjusted the quantity to the maximum allowable.</section>" : "";
             str += ((urlparams[urlparams.length - 2]).split("=")[1] === "true") ? "<section>One of the quantities you ordered had an invalid value. Please enter only valid (positive) numbers.</section>" : "";
         }
+        // For every product in the array, create an html section for it on the display products page. 
+        // Depending on whether this request was made because of errors in the last request for the invoice, different
+        // properties will be shown (errors, sticky content)
         for (i = 0; i < products_array.length; i++) {
             str += `
                 <section class="item">
@@ -84,7 +86,7 @@ app.get("/store", function (request, response) {
 
 app.post("/purchase", function (request, response, next) {
     let POST = request.body;
-    // console.log("\n" + JSON.stringify(POST));
+    console.log(Date.now() + ': Purchase made from ip ' + request.ip + ' data: ' + JSON.stringify(POST));
 
     // Checking the POST response:
     // submit value wasn't correctly given
@@ -105,8 +107,6 @@ app.post("/purchase", function (request, response, next) {
         response.redirect('/store');
         return next();
     }
-
-    console.log(Date.now() + ': Purchase made from ip ' + request.ip + ' data: ' + JSON.stringify(POST));
 
     // Validate the quantities. If one quantity is invalid, return an error query with all of the quantities (for sticky purposes)
     let errorRedirectQuery = 'store?error=Invalid%20Quantity';
@@ -132,15 +132,15 @@ app.post("/purchase", function (request, response, next) {
                 overMax = true;
                 errorRedirectQuery += quantityLeft;
             } else {
+                // No erros for this quantity
                 quantities_errors[i] = [];
                 errorRedirectQuery += a_qty;
             }
         }
     }
-    // If the quantities are invalid, redirect the user back to the store page
+    // If any of the quantities are invalid, redirect the user back to the store page
     if (badQuantity || overMax) {
         console.log("Something was bad about the quantities");
-        console.log("quantities_errors: " + JSON.stringify(quantities_errors));
         errorRedirectQuery += "&badQuantity" + `=${badQuantity}`;
         errorRedirectQuery += "&overMax" + `=${overMax}`;
         response.redirect(errorRedirectQuery);
@@ -161,20 +161,21 @@ app.post("/purchase", function (request, response, next) {
             if(typeof POST[`quantity${i}`] != 'undefined') {
                 a_qty = POST[`quantity${i}`];
             }
-            // If the quantity ordered is greater than 0, calculate the product's extended price and add to the subtotal
+            // If the quantity ordered is greater than 0, calculate the product's extended price and add to the subtotal and
+            // increase the total sold for the product by the quantity ordered
             if (a_qty > 0) {
                 // product row
                 products_array[i]['total_sold'] += Number(a_qty);
                 extended_price =a_qty * products_array[i].price
                 subtotal += extended_price;
                 str += (`
-      <tr>
-        <td width="43%">${products_array[i].flower}</td>
-        <td align="center" width="11%">${a_qty}</td>
-        <td width="13%">\$${(products_array[i].price).toFixed(2)}</td>
-        <td width="54%">\$${(extended_price).toFixed(2)}</td>
-      </tr>
-      `);
+                    <tr>
+                        <td width="43%">${products_array[i].flower}</td>
+                        <td align="center" width="11%">${a_qty}</td>
+                        <td width="13%">\$${(products_array[i].price).toFixed(2)}</td>
+                        <td width="54%">\$${(extended_price).toFixed(2)}</td>
+                    </tr>
+                `);
             }
         }
         // Compute tax
