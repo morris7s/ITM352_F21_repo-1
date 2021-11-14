@@ -13,6 +13,8 @@ var products_array = require('./products.json');
 // FROM Lab13; Give each product a property of how many sold during this server round
 products_array.forEach( (prod,i) => {prod.total_sold = 0});
 
+var quantities_errors = [];
+
 // For any internal requests from client side pages for the data
 app.get("/product.js", function (request, response, next) {
     response.type('.js');
@@ -48,7 +50,7 @@ app.get("/store", function (request, response) {
         // in the display_products.template
         if (urlparams[0] === "/store?error=Invalid%20Quantity") {
             str += ((urlparams[urlparams.length - 1]).split("=")[1] === "true") ? "<section>One of the quantities you ordered was beyond the stock we have. We have automatically adjusted the quantity to the maximum allowable.</section>" : "";
-            str += ((urlparams[urlparams.length - 2]).split("=")[1] === "true") ? "<section>One of the quantities you ordered had an invalid value. Please enter only numbers.</section>" : "";
+            str += ((urlparams[urlparams.length - 2]).split("=")[1] === "true") ? "<section>One of the quantities you ordered had an invalid value. Please enter only valid (positive) numbers.</section>" : "";
             
         }
         for (i = 0; i < products_array.length; i++) {
@@ -76,7 +78,7 @@ app.get("/store", function (request, response) {
 
 app.post("/purchase", function (request, response, next) {
     let POST = request.body;
-    console.log(JSON.stringify(POST));
+    // console.log("\n" + JSON.stringify(POST));
 
     // Checking the POST response:
     // submit value wasn't correctly given
@@ -110,19 +112,25 @@ app.post("/purchase", function (request, response, next) {
             a_qty = Number(POST[`quantity${i}`]);
             errorRedirectQuery += "&quantity" + i + '=';
             if (!isNonNegativeInteger(a_qty)) {
+                // Put error messages into this array to display error messages later
+                quantities_errors[i] = isNonNegativeInteger(a_qty, true);
                 badQuantity = true;
                 errorRedirectQuery += a_qty;
             } else if (a_qty > quantityLeft){
                 // Check that the desired quantity isn't over the max allowable
+                quantities_errors[i] = ["Adjusted the quantity to the maximum allowable"];
                 overMax = true;
                 errorRedirectQuery += quantityLeft;
             } else {
+                quantities_errors[i] = [];
                 errorRedirectQuery += a_qty;
             }
         }
     }
     // If the quantities are invalid, redirect the user back to the store page
     if (badQuantity || overMax) {
+        console.log("Something was bad about the quantities");
+        console.log("quantities_errors: " + JSON.stringify(quantities_errors));
         errorRedirectQuery += "&badQuantity" + `=${badQuantity}`;
         errorRedirectQuery += "&overMax" + `=${overMax}`;
         response.redirect(errorRedirectQuery);
