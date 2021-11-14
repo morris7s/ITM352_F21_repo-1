@@ -48,18 +48,22 @@ app.get("/store", function (request, response) {
         str = '';
 
         if (urlparams[0] === "/store?error=Invalid%20Quantity") {
-            str += ((urlparams[urlparams.length - 1]).split("=")[1] === "true") ? "<section>One of the quantities you ordered was beyond the stock we have. We have automatically adjusted the quantity to the maximum allowable.</section>" : "";
-            str += ((urlparams[urlparams.length - 2]).split("=")[1] === "true") ? "<section>One of the quantities you ordered had an invalid value. Please enter only valid (positive) numbers.</section>" : "";
+            str += ((urlparams[urlparams.length - 1]).split("=")[1] === "true") ? "<span style='text-align: center; color: #F26B8A'><section>One of the quantities you ordered was beyond the stock we have. We have automatically adjusted the quantity to the maximum allowable.</section></span>" : "";
+            str += ((urlparams[urlparams.length - 2]).split("=")[1] === "true") ? "<span style='text-align: center; color: #F26B8A'><section>One of the quantities you ordered had an invalid value. Please enter only valid (positive) numbers.</section></span>" : "";
         }
         // For every product in the array, create an html section for it on the display products page. 
         // Depending on whether this request was made because of errors in the last request for the invoice, different
         // properties will be shown (errors, sticky content)
+        
         for (i = 0; i < products_array.length; i++) {
+            if (i % 4 == 0) {
+                str += `<div class="w3-row-padding w3-padding-16 w3-center" class="flowers">`
+            }
             str += `
-                <section class="item">
+            <div class="w3-quarter">
                     <h2>${products_array[i].flower}</h2>
                     <p>$${products_array[i].price}</p>
-                    <label id="quantity${i}_label"}">Quantity</label>`;
+                    <label id="quantity${i}_label"}">Order: </label>`;
             // Check if this form needs to be built differently
             if (urlparams[0] === "/store?error=Invalid%20Quantity") {
                 // Maintain stickiness
@@ -70,12 +74,12 @@ app.get("/store", function (request, response) {
                     str += `<input type="text" placeholder="0" name="quantity${i}";>`
                 }
                 // Indicate any errors
-                str += `<label id="quantity${i}_label2"}">${quantities_errors[i]}</label>`
+                str += `</br><font color="purple"><label id="quantity${i}_label2"}">${quantities_errors[i]}</label></font>`
             } else {
                 str += `<input type="text" placeholder="0" name="quantity${i}">`
             }
-            str += `<img src="${products_array[i].image}" width="25%" height="25%">
-                </section>
+            str += `<br></br><img src="${products_array[i].image}" style="width:100%; height="50px">
+            </div>
             `;
         }
         return str;
@@ -128,7 +132,7 @@ app.post("/purchase", function (request, response, next) {
                 }
             } else if (a_qty > quantityLeft){
                 // Check that the desired quantity isn't over the max allowable
-                quantities_errors[i] = ["Adjusted the quantity to the maximum allowable"];
+                quantities_errors[i] = ["Adjusted to the maximum allowable"];
                 overMax = true;
                 errorRedirectQuery += quantityLeft;
             } else {
@@ -170,7 +174,7 @@ app.post("/purchase", function (request, response, next) {
                 subtotal += extended_price;
                 str += (`
                     <tr>
-                        <td width="43%">${products_array[i].flower}</td>
+                        <td align="center" width="43%">${products_array[i].flower}</td>
                         <td align="center" width="11%">${a_qty}</td>
                         <td width="13%">\$${(products_array[i].price).toFixed(2)}</td>
                         <td width="54%">\$${(extended_price).toFixed(2)}</td>
