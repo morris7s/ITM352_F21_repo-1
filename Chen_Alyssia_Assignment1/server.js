@@ -51,22 +51,28 @@ app.get("/store", function (request, response) {
         if (urlparams[0] === "/store?error=Invalid%20Quantity") {
             str += ((urlparams[urlparams.length - 1]).split("=")[1] === "true") ? "<section>One of the quantities you ordered was beyond the stock we have. We have automatically adjusted the quantity to the maximum allowable.</section>" : "";
             str += ((urlparams[urlparams.length - 2]).split("=")[1] === "true") ? "<section>One of the quantities you ordered had an invalid value. Please enter only valid (positive) numbers.</section>" : "";
-            
         }
         for (i = 0; i < products_array.length; i++) {
             str += `
                 <section class="item">
                     <h2>${products_array[i].flower}</h2>
                     <p>$${products_array[i].price}</p>
-                    <label id="quantity${i}_label"}">Quantity</label>
-                    <input type="text" placeholder="0" name="quantity${i}"
-                    onkeyup="checkQuantityTextbox(this);" `;
-            // Maintain stickiness
+                    <label id="quantity${i}_label"}">Quantity</label>`;
+            // Check if this form needs to be built differently
             if (urlparams[0] === "/store?error=Invalid%20Quantity") {
+                // Maintain stickiness
                 let pastValue = (urlparams[i + 1]).split("=")[1];
-                if (pastValue != 0) str += `value="${pastValue}";`
+                if (pastValue != 0) {
+                    str += `<input type="text" placeholder="0" name="quantity${i}" value="${pastValue}";>`
+                } else {
+                    str += `<input type="text" placeholder="0" name="quantity${i}";>`
+                }
+                // Indicate any errors
+                str += `<label id="quantity${i}_label2"}">${quantities_errors[i]}</label>`
+            } else {
+                str += `<input type="text" placeholder="0" name="quantity${i}">`
             }
-            str += `><img src="${products_array[i].image}" width="25%" height="25%">
+            str += `<img src="${products_array[i].image}" width="25%" height="25%">
                 </section>
             `;
         }
@@ -115,7 +121,11 @@ app.post("/purchase", function (request, response, next) {
                 // Put error messages into this array to display error messages later
                 quantities_errors[i] = isNonNegativeInteger(a_qty, true);
                 badQuantity = true;
-                errorRedirectQuery += a_qty;
+                if (isNaN(a_qty)) {
+                    errorRedirectQuery += POST[`quantity${i}`];
+                } else {
+                    errorRedirectQuery += a_qty;
+                }
             } else if (a_qty > quantityLeft){
                 // Check that the desired quantity isn't over the max allowable
                 quantities_errors[i] = ["Adjusted the quantity to the maximum allowable"];
@@ -140,6 +150,8 @@ app.post("/purchase", function (request, response, next) {
     var contents = fs.readFileSync('./views/invoice.template', 'utf8');
     response.send(eval('`' + contents + '`')); // render template string
 
+    // Reset the errors array because the invoice was successful
+    quantities_errors = []
     function display_invoice_table_rows() {
         subtotal = 0;
         str = '';
