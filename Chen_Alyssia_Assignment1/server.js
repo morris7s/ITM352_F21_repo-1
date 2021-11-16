@@ -102,7 +102,7 @@ app.post("/purchase", function (request, response, next) {
     // All empty values will redirect back to the store page 
     let allEmpty = 0;
     for (let index = 0; index < products_array.length; index++) {
-        if (POST[`quantity${index}`] === "") {
+        if (POST[`quantity${index}`] == "" || POST[`quantity${index}`] == "0") {
             allEmpty++;
         }
     }
@@ -132,7 +132,11 @@ app.post("/purchase", function (request, response, next) {
                 }
             } else if (a_qty > quantityLeft){
                 // Check that the desired quantity isn't over the max allowable
-                quantities_errors[i] = ["Adjusted to the maximum allowable"];
+                if (quantityLeft == 0){
+                    quantities_errors[i] = ["Sorry we're out of stock"];
+                } else {
+                    quantities_errors[i] = ["Adjusted to the maximum allowable"];
+                }
                 overMax = true;
                 errorRedirectQuery += quantityLeft;
             } else {
