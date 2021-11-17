@@ -47,14 +47,15 @@ app.get("/store", function (request, response) {
     function display_products() {
         str = '';
 
+        // Display broad errors at the top of the page
         if (urlparams[0] === "/store?error=Invalid%20Quantity") {
             str += ((urlparams[urlparams.length - 1]).split("=")[1] === "true") ? "<span style='text-align: center; color: #F26B8A'><section>One of the quantities you ordered was beyond the stock we have. We have automatically adjusted the quantity to the maximum allowable.</section></span>" : "";
             str += ((urlparams[urlparams.length - 2]).split("=")[1] === "true") ? "<span style='text-align: center; color: #F26B8A'><section>One of the quantities you ordered had an invalid value. Please enter only valid (positive) numbers.</section></span>" : "";
         }
+
         // For every product in the array, create an html section for it on the display products page. 
         // Depending on whether this request was made because of errors in the last request for the invoice, different
         // properties will be shown (errors, sticky content)
-        
         for (i = 0; i < products_array.length; i++) {
             if (i % 4 == 0) {
                 str += `<div class="w3-row-padding w3-padding-16 w3-center" class="flowers">`
@@ -74,13 +75,17 @@ app.get("/store", function (request, response) {
                     str += `<input type="text" placeholder="0" name="quantity${i}";>`
                 }
                 // Indicate any errors
-                str += `</br><font color="purple"><label id="quantity${i}_label2"}">${quantities_errors[i]}</label></font>`
+                str += `</br><font color="purple"><label id="quantity${i}_label2"}">${quantities_errors[i].join(" ")}</label></font>`
             } else {
                 str += `<input type="text" placeholder="0" name="quantity${i}">`
             }
             str += `<br></br><img src="${products_array[i].image}" style="width:100%; height="50px">
             </div>
             `;
+            if (i != 0 && (i + 1) % 4 == 0) {
+                str += `</div>`
+            }
+            // console.log("str: " + str + "\n\n");
         }
         return str;
     }
@@ -179,7 +184,7 @@ app.post("/purchase", function (request, response, next) {
                 str += (`
                     <tr>
                         <td align="center" width="43%">${products_array[i].flower}</td>
-                        <td align="center" width="11%">${a_qty}</td>
+                        <td align="center" width="11%">${Number(a_qty).toFixed(0)}</td>
                         <td width="13%">\$${(products_array[i].price).toFixed(2)}</td>
                         <td width="54%">\$${(extended_price).toFixed(2)}</td>
                     </tr>
@@ -191,10 +196,10 @@ app.post("/purchase", function (request, response, next) {
         tax = tax_rate * subtotal;
 
         // Compute shipping
-        if (subtotal <= 50) {
+        if (subtotal < 50) {
             shipping = 2;
         }
-        else if (subtotal <= 100) {
+        else if (subtotal < 100) {
             shipping = 5;
         }
         else {
@@ -203,7 +208,8 @@ app.post("/purchase", function (request, response, next) {
 
         // Compute grand total
         total = subtotal + tax + shipping;
-        console.log("products_array after purchases: " + JSON.stringify(products_array));
+        // console.log("products_array after purchases: " + JSON.stringify(products_array));
+        // console.log("errors array after purchase:" + quantities_errors);
         return str;
     }
 
