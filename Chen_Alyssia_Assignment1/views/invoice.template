@@ -4,6 +4,7 @@
  * Date: November 14th, 2021
  * Description: Provides the skeleton for the invoice and uses a function on the server side to generate the rows
  *              with the purchased products info for the invoice. Button styling from https://getcssscan.com/css-buttons-examples.
+ *              File from adapted from Assignment1 Example MVC.
  */
 </script>
 
