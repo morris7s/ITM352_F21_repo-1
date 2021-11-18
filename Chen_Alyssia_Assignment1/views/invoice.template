@@ -1,3 +1,12 @@
+<script>
+/* 
+ * Author: Alyssia Chen
+ * Date: November 14th, 2021
+ * Description: Provides the skeleton for the invoice and uses a function on the server side to generate the rows
+ *              with the purchased products info for the invoice. Button styling from https://getcssscan.com/css-buttons-examples.
+ */
+</script>
+
 <!DOCTYPE html>
 <html lang="en">
 
@@ -11,18 +20,39 @@
     <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Karma">
     <style>
     body,h1,h2,h3,h4,h5,h6 {font-family: "Karma", sans-serif}
+    body {
+      background: url('https://freerangestock.com/sample/115709/many-colored-flower-background-.jpg') no-repeat center;
+      background-size: cover;
+      width: 100%;
+      top: 0;
+      left: 0;
+    }
     .w3-bar-block .w3-bar-item {padding:20px}
     img { border-radius: 0%; }
     .button
     {
-        color: #F26B8A;
+      color: #10603a;
+      border: 1px solid #ffffff;
+      box-shadow: -6px 8px 10px rgba(81,41,10,0.1),0px 2px 2px rgba(81,41,10,0.2);
+      cursor: pointer;
+      background-image: linear-gradient(to bottom, #fff, #f8eedb);
+      transition: all .1s cubic-bezier(.4, 0, .2, 1);
     }
+    .button:active {
+      background-color: #f3f4f6;
+      box-shadow: -1px 2px 5px rgba(81,41,10,0.15),0px 1px 1px rgba(81,41,10,0.15);
+      transform: translateY(0.125rem);
+    }
+    .button-83:focus {
+      box-shadow: rgba(72, 35, 7, .46) 0 0 0 4px, -6px 8px 10px rgba(81,41,10,0.1), 0px 2px 2px rgba(81,41,10,0.2);
+    }
+    
     .center {
       margin: auto;
       width: 40%;
       border: 2px solid #F26B8A;
       padding: 10px;
-      background-color: #FEE2F3;
+      background-color: #ffffff;
       }
     .greeting {
     font-family: cursive;
@@ -33,6 +63,7 @@
 </head>
 
 <body>
+<br></br>
 <h1 style="text-align: center;" class="greeting">Thank you for shopping at Flora's!</h1>
 <div class="center">
   <table border="1">
@@ -77,6 +108,10 @@
         Subtotals over $100 will be charged 5% of the subtotal amount
       </b> 
     </div>
+</div>
+<br><b>
+<div style="text-align: center">
+  <a href="/store"><button class="button" style="text-align: center">Return back to the product ordering page</button></a>
 </div>
   
 </body>

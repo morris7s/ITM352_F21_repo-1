@@ -1,4 +1,12 @@
-<script></script>
+<script>
+/* 
+ * Author: Alyssia Chen
+ * Date: November 14th, 2021
+ * Description: Provides the skeleton for the products display. Customers will be able to indicate the quantities of each 
+ *              product they want to buy and then press a submit button to submit a POST request for the server to process. 
+ *              Template for the page from w3schools. Button styling from https://getcssscan.com/css-buttons-examples.
+ */
+</script>
 <!DOCTYPE html>
 <html>
 

@@ -1,7 +1,8 @@
 /* 
  * Author: Alyssia Chen
  * Date: November 14th, 2021
- * description : A file to serve products data, display products page, validate purchase data, and provide an invoice for a purchase
+ * Description: A file to serve products data, display products page, validate purchase data, and provide an 
+ *              invoice for a purchase
  */
 
 var express = require('express');
@@ -82,6 +83,7 @@ app.get("/store", function (request, response) {
             str += `<br></br><img src="${products_array[i].image}" style="width:100%; height="50px">
             </div>
             `;
+            // close the row div when necessary
             if (i != 0 && (i + 1) % 4 == 0) {
                 str += `</div>`
             }
@@ -104,7 +106,7 @@ app.post("/purchase", function (request, response, next) {
         console.log('No purchase form data');
         next();
     }
-    // All empty values will redirect back to the store page 
+    // All empty values or all zero values will redirect back to the store page 
     let allEmpty = 0;
     for (let index = 0; index < products_array.length; index++) {
         if (POST[`quantity${index}`] == "" || POST[`quantity${index}`] == "0") {
@@ -145,7 +147,7 @@ app.post("/purchase", function (request, response, next) {
                 overMax = true;
                 errorRedirectQuery += quantityLeft;
             } else {
-                // No erros for this quantity
+                // No errors for this quantity
                 quantities_errors[i] = [];
                 errorRedirectQuery += a_qty;
             }
@@ -163,7 +165,7 @@ app.post("/purchase", function (request, response, next) {
     var contents = fs.readFileSync('./views/invoice.template', 'utf8');
     response.send(eval('`' + contents + '`')); // render template string
 
-    // Reset the errors array because the invoice was successful
+    // Reset the errors array because the purchase was successful
     quantities_errors = []
     function display_invoice_table_rows() {
         subtotal = 0;
@@ -179,7 +181,7 @@ app.post("/purchase", function (request, response, next) {
             if (a_qty > 0) {
                 // product row
                 products_array[i]['total_sold'] += Number(a_qty);
-                extended_price =a_qty * products_array[i].price
+                extended_price =a_qty * products_array[i].price;
                 subtotal += extended_price;
                 str += (`
                     <tr>
@@ -215,9 +217,6 @@ app.post("/purchase", function (request, response, next) {
 
 });
 
-// process purchase request (validate quantities, check quantity available)
-/* <** your code here ***> */
-
 // route all other GET requests to files in public 
 app.use(express.static('./public'));
 
@@ -252,11 +251,4 @@ function isNonNegInt(q, return_errors = false) {
     else if (q < 0) errors.push('<font color="red">Negative value!</font>'); // Check if it is non-negative
     else if (parseInt(q) != q) errors.push('<font color="red">Not an integer!</font>'); // Check that it is an integer
     return return_errors ? errors : (errors.length == 0);
-}
-
-function checkQuantityTextbox(theTextbox) {
-    errs = isNonNegInt(theTextbox.value, true);
-    if (errs.length == 0) errs = ['You want:'];
-    if (theTextbox.value.trim() == '') errs = ['Quantity'];
-    document.getElementById(theTextbox.name + '_label').innerHTML = errs.join(", ");
 }
